@@ -18,32 +18,35 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js"></script>
 
     <script type="text/javascript">
-        // New JavaScript Logic for SQLite comparison
-        var db;
-        // Initialize sql.js
-        initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/${filename}` }).then(function (SQL) {
-            // Load the db file into a Uint8Array
-            fetch("products.db").then(res => res.arrayBuffer()).then(function (arrayBuffer) {
-                db = new SQL.Database(new Uint8Array(arrayBuffer));
+        document.addEventListener("DOMContentLoaded", function () {
 
-                // Add event listener to your scan button
-                document.getElementById('compareButton').addEventListener('click', function () {
-                    // Assume barcode is the scanned barcode
-                    var barcode = "4030700131250"; // Replace this with actual scanned barcode
+            // New JavaScript Logic for SQLite comparison
+            var db;
+            // Initialize sql.js
+            initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/${filename}` }).then(function (SQL) {
+                // Load the db file into a Uint8Array
+                fetch("products.db").then(res => res.arrayBuffer()).then(function (arrayBuffer) {
+                    db = new SQL.Database(new Uint8Array(arrayBuffer));
 
-                    // Execute SQL query
-                    var stmt = db.prepare("SELECT * FROM products WHERE codebar_number = ?");
-                    stmt.bind([barcode]);
+                    // Add event listener to your scan button
+                    document.getElementById('compareButton').addEventListener('click', function () {
+                        // Assume barcode is the scanned barcode
+                        var barcode = "4030700131250"; // Replace this with actual scanned barcode
 
-                    if (stmt.step()) {
-                        // Data exists
-                        var result = stmt.getAsObject();
-                        document.getElementById('compareResult').innerHTML = "Yes: " + JSON.stringify(result);
-                    } else {
-                        // Data does not exist
-                        document.getElementById('compareResult').innerHTML = "No";
-                    }
-                    stmt.free();
+                        // Execute SQL query
+                        var stmt = db.prepare("SELECT * FROM products WHERE codebar_number = ?");
+                        stmt.bind([barcode]);
+
+                        if (stmt.step()) {
+                            // Data exists
+                            var result = stmt.getAsObject();
+                            document.getElementById('compareResult').innerHTML = "Yes: " + JSON.stringify(result);
+                        } else {
+                            // Data does not exist
+                            document.getElementById('compareResult').innerHTML = "No";
+                        }
+                        stmt.free();
+                    });
                 });
             });
         });
@@ -74,11 +77,10 @@
                 <label>
                     <span>Barcode-Type</span>
                     <select name="decoder_readers">
-                        <option value="code_128" selected="selected">Code 128
-                        </option>
+                        <option value="code_128">Code 128</option>
                         <option value="code_39">Code 39</option>
                         <option value="code_39_vin">Code 39 VIN</option>
-                        <option value="ean">EAN</option>
+                        <option value="ean" selected="selected">EAN</option>
                         <option value="ean_extended">EAN-extended</option>
                         <option value="ean_8">EAN-8</option>
                         <option value="upc">UPC</option>
@@ -93,10 +95,10 @@
                     <span>Resolution (width)</span>
                     <select name="input-stream_constraints">
                         <option value="320x240">320px</option>
-                        <option selected="selected" value="640x480">640px
-                        </option>
+                        <option value="640x480">640px</option>
                         <option value="800x600">800px</option>
-                        <option value="1280x720">1280px</option>
+                        <option value="1280x720" selected="selected">1280px
+                        </option>
                         <option value="1600x960">1600px</option>
                         <option value="1920x1080">1920px</option>
                     </select>
@@ -106,9 +108,8 @@
                     <select name="locator_patch-size">
                         <option value="x-small">x-small</option>
                         <option value="small">small</option>
-                        <option selected="selected" value="medium">medium
-                        </option>
-                        <option value="large">large</option>
+                        <option value="medium">medium</option>
+                        <option value="large" selected="selected">large</option>
                         <option value="x-large">x-large</option>
                     </select>
                 </label>
@@ -142,6 +143,8 @@
                     <input type="checkbox" name="settings_torch" />
                 </label>
             </fieldset>
+            <button id="compareButton">Comparar Código de Barras</button>
+            <div id="compareResult"></div>
         </div>
         <div id="result_strip">
             <ul class="thumbnails"></ul>
