@@ -19,37 +19,46 @@
 
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function () {
+                var db;
+                // Inicializa sql.js
+                initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/${filename}` }).then(function (SQL) {
+                    fetch("products.db").then(res => res.arrayBuffer()).then(function (arrayBuffer) {
+                        db = new SQL.Database(new Uint8Array(arrayBuffer));
 
-            // New JavaScript Logic for SQLite comparison
-            var db;
-            // Initialize sql.js
-            initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/${filename}` }).then(function (SQL) {
-                // Load the db file into a Uint8Array
-                fetch("products.db").then(res => res.arrayBuffer()).then(function (arrayBuffer) {
-                    db = new SQL.Database(new Uint8Array(arrayBuffer));
+                        // Inicializa QuaggaJS después de cargar la base de datos
+                        Quagga.init({
+                            // tus opciones de configuración aquí
+                        }, function (err) {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                            Quagga.start();
+                        });
 
-                    // Add event listener to your scan button
-                    document.getElementById('compareButton').addEventListener('click', function () {
-                        // Assume barcode is the scanned barcode
-                        var barcode = "4030700131250"; // Replace this with actual scanned barcode
+                        // Evento que se dispara cuando se detecta un código de barras
+                        Quagga.onDetected(function (data) {
+                            var barcode = data.codeResult.code;
 
-                        // Execute SQL query
-                        var stmt = db.prepare("SELECT * FROM products WHERE codebar_number = ?");
-                        stmt.bind([barcode]);
+                            // Consulta a la base de datos SQLite
+                            var stmt = db.prepare("SELECT * FROM products WHERE codebar_number = ?");
+                            stmt.bind([barcode]);
 
-                        if (stmt.step()) {
-                            // Data exists
-                            var result = stmt.getAsObject();
-                            document.getElementById('compareResult').innerHTML = "Yes: " + JSON.stringify(result);
-                        } else {
-                            // Data does not exist
-                            document.getElementById('compareResult').innerHTML = "No";
-                        }
-                        stmt.free();
+                            if (stmt.step()) {
+                                // El producto existe en la base de datos
+                                var result = stmt.getAsObject();
+                                document.getElementById('compareResult').innerHTML = "Yes: " + JSON.stringify(result);
+                            } else {
+                                // El producto no existe en la base de datos
+                                document.getElementById('compareResult').innerHTML = "No";
+                            }
+
+                            stmt.free();
+                        });
                     });
                 });
             });
-        });
+
     </script>
 </head>
 
