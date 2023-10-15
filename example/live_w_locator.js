@@ -231,21 +231,21 @@ $(function() {
             inputStream: {
                 type : "LiveStream",
                 constraints: {
-                    width: {min: 640},
-                    height: {min: 480},
+                    width: {min: 1280},
+                    height: {min: 720},
                     facingMode: "environment",
                     aspectRatio: {min: 1, max: 2}
                 }
             },
             locator: {
-                patchSize: "medium",
+                patchSize: "large",
                 halfSample: true
             },
             numOfWorkers: 2,
             frequency: 10,
             decoder: {
                 readers : [{
-                    format: "code_128_reader",
+                    format: "ean_reader",
                     config: {}
                 }]
             },
