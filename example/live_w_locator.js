@@ -21,6 +21,37 @@ $(function() {
             return true;
         }
     });
+
+    var scanResults = [];
+    var scanTimeout = null;
+
+    function processResults() {
+        var frequencies = {};
+        var mostFrequentCode = "";
+        var maxFrequency = 0;
+
+        scanResults.forEach(function (code) {
+            frequencies[code] = (frequencies[code] || 0) + 1;
+
+            if (frequencies[code] > maxFrequency) {
+                maxFrequency = frequencies[code];
+                mostFrequentCode = code;
+            }
+        });
+
+        // Aquí puedes hacer algo con el código más frecuente
+        console.log("Código más frecuente: " + mostFrequentCode);
+
+        // Limpia los resultados y reinicia el escaneo
+        scanResults = [];
+        restartQuagga();
+    }
+
+    function restartQuagga() {
+        Quagga.stop();
+        App.init();
+    }
+
     var App = {
         init: function() {
             var self = this;
@@ -36,7 +67,7 @@ $(function() {
             });
         },
         handleError: function(err) {
-            console.log(err);
+            console.log("Error durante la inicialización de Quagga:", err);
         },
         checkCapabilities: function() {
             var track = Quagga.CameraAccess.getActiveTrack();
@@ -241,8 +272,8 @@ $(function() {
                 patchSize: "large",
                 halfSample: true
             },
-            numOfWorkers: 2,
-            frequency: 10,
+            numOfWorkers: 4,
+            // frequency: 10,
             decoder: {
                 readers : [{
                     format: "ean_reader",
@@ -280,18 +311,15 @@ $(function() {
         }
     });
 
-    Quagga.onDetected(function(result) {
+    Quagga.onDetected(function (result) {
         var code = result.codeResult.code;
+        scanResults.push(code);
 
-        if (App.lastResult !== code) {
-            App.lastResult = code;
-            var $node = null, canvas = Quagga.canvas.dom.image;
-
-            $node = $('<li><div class="thumbnail"><div class="imgWrapper"><img /></div><div class="caption"><h4 class="code"></h4></div></div></li>');
-            $node.find("img").attr("src", canvas.toDataURL());
-            $node.find("h4.code").html(code);
-            $("#result_strip ul.thumbnails").prepend($node);
+        if (scanTimeout !== null) {
+            clearTimeout(scanTimeout);
         }
+
+        scanTimeout = setTimeout(processResults, 1000); // Espera 1 segundo antes de procesar
     });
 
 });

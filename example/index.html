@@ -25,17 +25,6 @@
                     fetch("products.db").then(res => res.arrayBuffer()).then(function (arrayBuffer) {
                         db = new SQL.Database(new Uint8Array(arrayBuffer));
 
-                        // Inicializa QuaggaJS después de cargar la base de datos
-                        Quagga.init({
-                            // tus opciones de configuración aquí
-                        }, function (err) {
-                            if (err) {
-                                console.log(err);
-                                return;
-                            }
-                            Quagga.start();
-                        });
-
                         // Evento que se dispara cuando se detecta un código de barras
                         Quagga.onDetected(function (data) {
                             var barcode = data.codeResult.code;
@@ -65,19 +54,16 @@
 <body>
     <header>
         <div class="headline">
-            <h1>QuaggaJS</h1>
+            <h1>Barcode checker</h1>
             <h2>An advanced barcode-scanner written in JavaScript</h2>
         </div>
     </header>
     <section id="container" class="container">
-        <h3>The user's camera</h3>
-        <p>If your platform supports the <strong>getUserMedia</strong> API call,
-            you can try the real-time locating and decoding features.
-            Simply allow the page to access your web-cam and point it to a
-            barcode. You can switch between <strong>Code128</strong>
-            and <strong>EAN</strong> to test different scenarios.
-            It works best if your camera has built-in auto-focus.
-        </p>
+        <div id="result_strip">
+            <ul class="thumbnails"></ul>
+            <ul class="collector"></ul>
+        </div>
+        <div id="interactive" class="viewport"></div>
         <div class="controls">
             <fieldset class="input-group">
                 <button class="stop">Stop</button>
@@ -139,8 +125,7 @@
                 </label>
                 <label>
                     <span>Camera</span>
-                    <select name="input-stream_constraints"
-                        id="deviceSelection">
+                    <select name="input-stream_constraints" id="deviceSelection">
                     </select>
                 </label>
                 <label style="display: none">
@@ -155,11 +140,6 @@
             <button id="compareButton">Comparar Código de Barras</button>
             <div id="compareResult"></div>
         </div>
-        <div id="result_strip">
-            <ul class="thumbnails"></ul>
-            <ul class="collector"></ul>
-        </div>
-        <div id="interactive" class="viewport"></div>
     </section>
     <footer>
         <p>
