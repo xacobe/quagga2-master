@@ -2,156 +2,172 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-    <title>index</title>
-    <meta name="description" content="" />
-    <meta name="author" content="Christoph Oberhofer" />
+  <title>index</title>
+  <meta name="description" content="" />
+  <meta name="author" content="Christoph Oberhofer" />
 
-    <meta name="viewport"
-        content="width=device-width; initial-scale=1.0; user-scalable=no" />
-    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css"
+    rel="stylesheet">
 
-    <!-- SQL.js script -->
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js"></script>
 
-    <script type="text/javascript">
-        document.addEventListener("DOMContentLoaded", function () {
-                var db;
-                // Inicializa sql.js
-                initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/${filename}` }).then(function (SQL) {
-                    fetch("products.db").then(res => res.arrayBuffer()).then(function (arrayBuffer) {
-                        db = new SQL.Database(new Uint8Array(arrayBuffer));
+  <!-- SQL.js script -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js"></script>
 
-                        // Evento que se dispara cuando se detecta un código de barras
-                        Quagga.onDetected(function (data) {
-                            var barcode = data.codeResult.code;
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+      var db;
+      // Inicializa sql.js
+      initSqlJs({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/${filename}` }).then(function (SQL) {
+        fetch("products.db").then(res => res.arrayBuffer()).then(function (arrayBuffer) {
+          db = new SQL.Database(new Uint8Array(arrayBuffer));
 
-                            // Consulta a la base de datos SQLite
-                            var stmt = db.prepare("SELECT * FROM products WHERE codebar_number = ?");
-                            stmt.bind([barcode]);
+          // Evento que se dispara cuando se detecta un código de barras
+          Quagga.onDetected(function (data) {
+            var barcode = data.codeResult.code;
 
-                            if (stmt.step()) {
-                                // El producto existe en la base de datos
-                                var result = stmt.getAsObject();
-                                document.getElementById('compareResult').innerHTML = "Yes: " + JSON.stringify(result);
-                            } else {
-                                // El producto no existe en la base de datos
-                                document.getElementById('compareResult').innerHTML = "No";
-                            }
+            // Consulta a la base de datos SQLite
+            var stmt = db.prepare("SELECT * FROM products WHERE codebar_number = ?");
+            stmt.bind([barcode]);
 
-                            stmt.free();
-                        });
-                    });
-                });
-            });
+            if (stmt.step()) {
+              // El producto existe en la base de datos
+              var result = stmt.getAsObject();
+              document.getElementById('compareResult').innerHTML = "Yes: " + JSON.stringify(result);
+            } else {
+              // El producto no existe en la base de datos
+              document.getElementById('compareResult').innerHTML = "No";
+            }
 
-    </script>
+            stmt.free();
+          });
+        });
+      });
+    });
+
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <header>
-        <div class="headline">
-            <h1>Barcode checker</h1>
-            <h2>An advanced barcode-scanner written in JavaScript</h2>
-        </div>
+<body class="bg-gray-900">
+  <div class="wrapper h-full flex flex-col mx-auto">
+    <header class="header px-2 py-3 bg-black">
+      <div class="headline">
+        <h1 class="text-4xl text-white m-0 text-center">Free Palestine</h1>
+        <h2 class="text-xl text-white m-0 text-center p-0">Sionist free
+          products barcode scanner</h2>
+      </div>
     </header>
-    <section id="container" class="container">
-        <div id="result_strip">
-            <ul class="thumbnails"></ul>
-            <ul class="collector"></ul>
-        </div>
-        <div id="interactive" class="viewport"></div>
-        <div class="controls">
-            <fieldset class="input-group">
-                <button class="stop">Stop</button>
-            </fieldset>
-            <fieldset class="reader-config-group">
-                <label>
-                    <span>Barcode-Type</span>
-                    <select name="decoder_readers">
-                        <option value="code_128">Code 128</option>
-                        <option value="code_39">Code 39</option>
-                        <option value="code_39_vin">Code 39 VIN</option>
-                        <option value="ean" selected="selected">EAN</option>
-                        <option value="ean_extended">EAN-extended</option>
-                        <option value="ean_8">EAN-8</option>
-                        <option value="upc">UPC</option>
-                        <option value="upc_e">UPC-E</option>
-                        <option value="codabar">Codabar</option>
-                        <option value="i2of5">Interleaved 2 of 5</option>
-                        <option value="2of5">Standard 2 of 5</option>
-                        <option value="code_93">Code 93</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Resolution (width)</span>
-                    <select name="input-stream_constraints">
-                        <option value="320x240">320px</option>
-                        <option value="640x480">640px</option>
-                        <option value="800x600">800px</option>
-                        <option value="1280x720" selected="selected">1280px
-                        </option>
-                        <option value="1600x960">1600px</option>
-                        <option value="1920x1080">1920px</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Patch-Size</span>
-                    <select name="locator_patch-size">
-                        <option value="x-small">x-small</option>
-                        <option value="small">small</option>
-                        <option value="medium">medium</option>
-                        <option value="large" selected="selected">large</option>
-                        <option value="x-large">x-large</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Half-Sample</span>
-                    <input type="checkbox" checked="checked"
-                        name="locator_half-sample" />
-                </label>
-                <label>
-                    <span>Workers</span>
-                    <select name="numOfWorkers">
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option selected="selected" value="4">4</option>
-                        <option value="8">8</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Camera</span>
-                    <select name="input-stream_constraints" id="deviceSelection">
-                    </select>
-                </label>
-                <label style="display: none">
-                    <span>Zoom</span>
-                    <select name="settings_zoom"></select>
-                </label>
-                <label style="display: none">
-                    <span>Torch</span>
-                    <input type="checkbox" name="settings_torch" />
-                </label>
-            </fieldset>
-            <button id="compareButton">Comparar Código de Barras</button>
-            <div id="compareResult"></div>
-        </div>
+    <section id="container" class="main-section h-full flex flex-col bg-black">
+      <div id="interactive" class="viewport relative"></div>
+      <div id="result_strip">
+        <ul class="thumbnails pt-1"></ul>
+        <ul class="collector"></ul>
+      </div>
+      <div class="controls flex flex-col h-full justify-center aling-center">
+        <button
+          class="stop mx-auto bg-red-600 px-4 py-1 border border-white rounded-full hover:bg-red-400 h-20 w-20 bg-orange text-white">Stop</button>
+        <details>
+          <summary aria-label="Configuración" class="absolute top-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+              fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+              <path
+                d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
+            </svg>
+          </summary>
+          <fieldset class="reader-config-group">
+            <label>
+              <span>Tipo</span>
+              <select name="decoder_readers">
+                <option value="code_128">Code 128</option>
+                <option value="code_39">Code 39</option>
+                <option value="code_39_vin">Code 39 VIN</option>
+                <option value="ean" selected="selected">EAN</option>
+                <option value="ean_extended">EAN-extended</option>
+                <option value="ean_8">EAN-8</option>
+                <option value="upc">UPC</option>
+                <option value="upc_e">UPC-E</option>
+                <option value="codabar">Codabar</option>
+                <option value="i2of5">Interleaved 2 of 5</option>
+                <option value="2of5">Standard 2 of 5</option>
+                <option value="code_93">Code 93</option>
+              </select>
+            </label>
+            <label>
+              <span>Resolución</span>
+              <select name="input-stream_constraints">
+                <option value="320x240">320px</option>
+                <option value="640x480">640px</option>
+                <option value="800x600">800px</option>
+                <option value="1280x720" selected="selected">1280px
+                </option>
+                <option value="1600x960">1600px</option>
+                <option value="1920x1080">1920px</option>
+              </select>
+            </label>
+            <label class="hidden">
+              <span>Patch-Size</span>
+              <select name="locator_patch-size">
+                <option value="x-small">x-small</option>
+                <option value="small">small</option>
+                <option value="medium">medium</option>
+                <option value="large" selected="selected">large
+                </option>
+                <option value="x-large">x-large</option>
+              </select>
+            </label>
+            <label class="hidden">
+              <span>Half-Sample</span>
+              <input type="checkbox" checked="checked"
+                name="locator_half-sample" />
+            </label>
+            <label class="hidden">
+              <span>Workers</span>
+              <select name="numOfWorkers">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option selected="selected" value="4">4</option>
+                <option value="8">8</option>
+              </select>
+            </label>
+            <label>
+              <span>Cámara</span>
+              <select name="input-stream_constraints" id="deviceSelection">
+              </select>
+            </label>
+            <label class="hidden">
+              <span>Zoom</span>
+              <select name="settings_zoom"></select>
+            </label>
+            <label class="hidden">
+              <span>Torch</span>
+              <input type="checkbox" name="settings_torch" />
+            </label>
+          </fieldset>
+        </details>
+        <div id="compareResult"></div>
+      </div>
     </section>
-    <footer>
-        <p>
-            &copy; Made with ❤️ by Christoph Oberhofer
-        </p>
+    <footer class="footer">
+      <p>
+        🇵🇸 From the river to the sea, Palestine will be free 🇵🇸
+      </p>
     </footer>
+  </div>
 
-    <script src="vendor/jquery-1.9.0.min.js" type="text/javascript"></script>
-    <script src="//webrtc.github.io/adapter/adapter-latest.js"
-        type="text/javascript"></script>
-    <script src="../dist/quagga.js" type="text/javascript"></script>
-    <script src="live_w_locator.js" type="text/javascript"></script>
+  <script src="vendor/jquery-1.9.0.min.js" type="text/javascript"></script>
+  <script src="//webrtc.github.io/adapter/adapter-latest.js"
+    type="text/javascript"></script>
+  <script src="../dist/quagga.js" type="text/javascript"></script>
+  <script src="live_w_locator.js" type="text/javascript"></script>
 </body>
 
 </html>
